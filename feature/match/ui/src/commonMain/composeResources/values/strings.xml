@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<resources>
+    <string name="match_court">Court</string>
+    <string name="match_player_avatar_cd">%1$s avatar</string>
+    <string name="match_court_of_total">%1$s of %2$s</string>
+    <string name="match_sets">SETS</string>
+    <string name="matches_empty">No matches</string>
+    <string name="matches_screen_title">Matches</string>
+</resources>
