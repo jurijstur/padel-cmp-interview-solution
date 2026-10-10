@@ -90,6 +90,16 @@ The current remote data sources request:
 
 The list requests fetch one page; incremental pagination is not implemented.
 
+## Completed tasks
+
+### Task 1: Pull-to-refresh on detail errors
+
+Tournament and match detail screens kept the pull-to-refresh gesture inside a scrollable child. After a failed load that child was not composed, so the gesture did nothing. A failed load now keeps a scrollable error message, and pulling it retries the request. An already loaded screen stays visible if a later refresh fails.
+
+Checked with `./gradlew test`, plus `ktlintCheck` and `detekt` on the tournament and match UI modules. Reducer tests cover the error, refresh, and successful-load transitions.
+
+See `docs/screenshots/task1-pull-refresh-fixed-tournament.png` and `docs/screenshots/task1-pull-refresh-fixed-match.png`.
+
 ## Development Guidance
 
 See [AGENTS.md](AGENTS.md) for module structure, architecture, coding conventions, verification commands, and testing guidance. [CLAUDE.md](CLAUDE.md) is the entry point for Claude Code and references those shared instructions.

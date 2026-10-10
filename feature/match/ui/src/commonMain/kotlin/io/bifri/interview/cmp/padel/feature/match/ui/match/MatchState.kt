@@ -10,6 +10,7 @@ internal data class MatchState(
     data class UiState(
         val match: Match? = null,
         val isDataLoading: Boolean = false,
+        val isDataLoadError: Boolean = false,
         val tournamentName: String? = null,
         val totalCourts: Int? = null,
     )

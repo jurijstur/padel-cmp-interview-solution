@@ -5,6 +5,7 @@
     <string name="detail_prize_money">Prize money</string>
     <string name="detail_timezone">Time zone</string>
     <string name="detail_venue">Venue</string>
+    <string name="tournament_load_error">Could not load this tournament</string>
     <string name="tournament_matches_button">Matches</string>
     <string name="tournament_poster_cd">%1$s poster</string>
     <string name="tournament_screen_title">Tournament</string>

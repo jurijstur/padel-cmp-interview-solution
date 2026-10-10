@@ -10,5 +10,6 @@ internal data class TournamentState(
     data class UiState(
         val tournament: Tournament? = null,
         val isDataLoading: Boolean = false,
+        val isDataLoadError: Boolean = false,
     )
 }

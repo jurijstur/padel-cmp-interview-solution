@@ -50,35 +50,19 @@ class MatchViewModel(
                 exceptionHandler.handleException(it)
                 emit(Navigate(ShowError(it)))
             }
-            .runningFold(MatchState(), ::viewStateReducer)
+            .runningFold(MatchState()) { prevState, changes ->
+                reduceMatchState(
+                    prevState = prevState,
+                    changes = changes,
+                    tournamentName = tournamentName,
+                    totalCourts = totalCourts,
+                )
+            }
             .flowOn(coroutineDispatcher)
             .stateInViewModel(
                 scope = viewModelScope,
                 initialValue = MatchState(),
             )
-
-    private fun viewStateReducer(
-        prevState: MatchState,
-        changes: MatchPartialState,
-    ): MatchState = when (changes) {
-        DataLoading -> prevState.copy(uiState = prevState.uiState.copy(isDataLoading = true))
-
-        is DataLoadingError -> prevState.copy(
-            uiState = prevState.uiState.copy(isDataLoading = false),
-            event = Event(ShowError(changes.error)),
-        )
-
-        is DataLoaded -> prevState.copy(
-            uiState = prevState.uiState.copy(
-                match = changes.match,
-                isDataLoading = false,
-                tournamentName = tournamentName,
-                totalCourts = totalCourts,
-            ),
-        )
-
-        is Navigate -> prevState.copy(event = Event(changes.navigationAction))
-    }
 
     private fun dataStream() = refreshes
         .onStart { emit(Unit) }
@@ -91,4 +75,33 @@ class MatchViewModel(
                     emit(DataLoadingError(it))
                 }
         }
+}
+
+internal fun reduceMatchState(
+    prevState: MatchState,
+    changes: MatchPartialState,
+    tournamentName: String,
+    totalCourts: Int?,
+): MatchState = when (changes) {
+    DataLoading -> prevState.copy(uiState = prevState.uiState.copy(isDataLoading = true))
+
+    is DataLoadingError -> prevState.copy(
+        uiState = prevState.uiState.copy(
+            isDataLoading = false,
+            isDataLoadError = true,
+        ),
+        event = Event(ShowError(changes.error)),
+    )
+
+    is DataLoaded -> prevState.copy(
+        uiState = prevState.uiState.copy(
+            match = changes.match,
+            isDataLoading = false,
+            isDataLoadError = false,
+            tournamentName = tournamentName,
+            totalCourts = totalCourts,
+        ),
+    )
+
+    is Navigate -> prevState.copy(event = Event(changes.navigationAction))
 }

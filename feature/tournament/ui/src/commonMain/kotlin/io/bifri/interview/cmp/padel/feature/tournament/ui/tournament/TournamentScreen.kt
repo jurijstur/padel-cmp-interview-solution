@@ -21,6 +21,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -48,6 +49,7 @@ import io.bifri.interview.cmp.padel.feature.tournament.ui.detail_timezone
 import io.bifri.interview.cmp.padel.feature.tournament.ui.detail_venue
 import io.bifri.interview.cmp.padel.feature.tournament.ui.tournament.TournamentNavigationAction.OpenMatches
 import io.bifri.interview.cmp.padel.feature.tournament.ui.tournament.TournamentState.UiState
+import io.bifri.interview.cmp.padel.feature.tournament.ui.tournament_load_error
 import io.bifri.interview.cmp.padel.feature.tournament.ui.tournament_matches_button
 import io.bifri.interview.cmp.padel.feature.tournament.ui.tournament_poster_cd
 import io.bifri.interview.cmp.padel.feature.tournament.ui.tournament_screen_title
@@ -135,29 +137,50 @@ private fun TournamentScreen(
                 isRefreshing = uiState.isDataLoading,
                 onRefresh = onRefresh,
             ) {
-                TournamentContent(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .verticalScroll(rememberScrollState())
-                        .padding(
-                            start = dimens.spacingMedium,
-                            end = dimens.spacingMedium,
-                            bottom = innerPadding.calculateBottomPadding().plus(dimens.spacingMedium),
-                        ),
-                    tournament = uiState.tournament,
-                )
+                val contentModifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(
+                        start = dimens.spacingMedium,
+                        end = dimens.spacingMedium,
+                        bottom = innerPadding.calculateBottomPadding().plus(dimens.spacingMedium),
+                    )
+                val tournament = uiState.tournament
+                when {
+                    tournament != null -> TournamentContent(
+                        modifier = contentModifier,
+                        tournament = tournament,
+                    )
+
+                    uiState.isDataLoadError -> TournamentLoadError(modifier = contentModifier)
+
+                    else -> Box(modifier = Modifier.fillMaxSize())
+                }
             }
         }
     }
 }
 
 @Composable
-private fun TournamentContent(
-    tournament: Tournament?,
+private fun TournamentLoadError(
     modifier: Modifier = Modifier,
 ) {
-    tournament ?: return
+    Box(
+        modifier = modifier,
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            text = stringResource(TournamentUiRes.string.tournament_load_error),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
+}
 
+@Composable
+private fun TournamentContent(
+    tournament: Tournament,
+    modifier: Modifier = Modifier,
+) {
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(dimens.spacingMedium),
@@ -270,6 +293,19 @@ private fun TournamentScreenPreview() {
                 tournament = previewTournament(),
                 isDataLoading = false,
             ),
+            onBackClick = {},
+            onMatchesClick = {},
+            onRefresh = {},
+        )
+    }
+}
+
+@Preview(name = "Tournament load error")
+@Composable
+private fun TournamentScreenErrorPreview() {
+    AppTheme {
+        TournamentScreen(
+            uiState = UiState(isDataLoadError = true),
             onBackClick = {},
             onMatchesClick = {},
             onRefresh = {},

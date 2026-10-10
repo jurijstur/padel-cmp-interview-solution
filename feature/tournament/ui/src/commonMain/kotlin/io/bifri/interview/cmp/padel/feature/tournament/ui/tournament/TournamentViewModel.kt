@@ -56,33 +56,12 @@ class TournamentViewModel(
                 exceptionHandler.handleException(it)
                 emit(Navigate(ShowError(it)))
             }
-            .runningFold(TournamentState(), ::viewStateReducer)
+            .runningFold(TournamentState(), ::reduceTournamentState)
             .flowOn(coroutineDispatcher)
             .stateInViewModel(
                 scope = viewModelScope,
                 initialValue = TournamentState(),
             )
-
-    private fun viewStateReducer(
-        prevState: TournamentState,
-        changes: TournamentPartialState,
-    ): TournamentState = when (changes) {
-        DataLoading -> prevState.copy(uiState = prevState.uiState.copy(isDataLoading = true))
-
-        is DataLoadingError -> prevState.copy(
-            uiState = prevState.uiState.copy(isDataLoading = false),
-            event = Event(ShowError(changes.error)),
-        )
-
-        is DataLoaded -> prevState.copy(
-            uiState = prevState.uiState.copy(
-                tournament = changes.tournament,
-                isDataLoading = false,
-            ),
-        )
-
-        is Navigate -> prevState.copy(event = Event(changes.navigationAction))
-    }
 
     private fun dataStream() = refreshes
         .onStart { emit(Unit) }
@@ -99,4 +78,29 @@ class TournamentViewModel(
     private fun matchesClicksStream(): Flow<TournamentPartialState> = matchesClicks
         .throttleTime(DefaultSkipDuration)
         .map { Navigate(OpenMatches(it)) }
+}
+
+internal fun reduceTournamentState(
+    prevState: TournamentState,
+    changes: TournamentPartialState,
+): TournamentState = when (changes) {
+    DataLoading -> prevState.copy(uiState = prevState.uiState.copy(isDataLoading = true))
+
+    is DataLoadingError -> prevState.copy(
+        uiState = prevState.uiState.copy(
+            isDataLoading = false,
+            isDataLoadError = true,
+        ),
+        event = Event(ShowError(changes.error)),
+    )
+
+    is DataLoaded -> prevState.copy(
+        uiState = prevState.uiState.copy(
+            tournament = changes.tournament,
+            isDataLoading = false,
+            isDataLoadError = false,
+        ),
+    )
+
+    is Navigate -> prevState.copy(event = Event(changes.navigationAction))
 }

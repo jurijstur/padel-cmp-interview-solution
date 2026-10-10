@@ -54,6 +54,7 @@ import io.bifri.interview.cmp.padel.feature.match.ui.match.MatchNavigationAction
 import io.bifri.interview.cmp.padel.feature.match.ui.match.MatchState.UiState
 import io.bifri.interview.cmp.padel.feature.match.ui.match_court
 import io.bifri.interview.cmp.padel.feature.match.ui.match_court_of_total
+import io.bifri.interview.cmp.padel.feature.match.ui.match_load_error
 import io.bifri.interview.cmp.padel.feature.match.ui.match_player_avatar_cd
 import io.bifri.interview.cmp.padel.feature.match.ui.match_sets
 import org.jetbrains.compose.resources.stringResource
@@ -130,26 +131,47 @@ private fun MatchScreen(
         ) {
             val contentPadding = innerPadding.plus(PaddingValues(all = dimens.margin))
 
-            MatchContent(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
-                    .padding(contentPadding),
-                match = uiState.match,
-                totalCourts = uiState.totalCourts,
-            )
+            val contentModifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(contentPadding)
+            val match = uiState.match
+            when {
+                match != null -> MatchContent(
+                    modifier = contentModifier,
+                    match = match,
+                    totalCourts = uiState.totalCourts,
+                )
+
+                uiState.isDataLoadError -> MatchLoadError(modifier = contentModifier)
+
+                else -> Box(modifier = Modifier.fillMaxSize())
+            }
         }
     }
 }
 
 @Composable
+private fun MatchLoadError(
+    modifier: Modifier = Modifier,
+) {
+    Box(
+        modifier = modifier,
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            text = stringResource(MatchUiRes.string.match_load_error),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
+}
+
+@Composable
 private fun MatchContent(
-    match: Match?,
+    match: Match,
     totalCourts: Int?,
     modifier: Modifier = Modifier,
 ) {
-    match ?: return
-
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(dimens.spacingMedium),
@@ -313,6 +335,22 @@ private fun MatchScreenPreview() {
         MatchScreen(
             uiState = UiState(
                 match = previewMatch(),
+                tournamentName = "Madrid P1",
+                totalCourts = 8,
+            ),
+            onBackClick = {},
+            onRefresh = {},
+        )
+    }
+}
+
+@Preview(name = "Match load error")
+@Composable
+private fun MatchScreenErrorPreview() {
+    AppTheme {
+        MatchScreen(
+            uiState = UiState(
+                isDataLoadError = true,
                 tournamentName = "Madrid P1",
                 totalCourts = 8,
             ),
