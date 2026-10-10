@@ -100,6 +100,14 @@ Checked with `./gradlew test`, plus `ktlintCheck` and `detekt` on the tournament
 
 See `docs/screenshots/task1-pull-refresh-fixed-tournament.png` and `docs/screenshots/task1-pull-refresh-fixed-match.png`.
 
+### Task 2: Aligned set scores
+
+Set scores on the matches list were one string, so a tie-break such as `6(5)` changed the width of the line. Match detail used a minimum column width that a tie-break exceeded, so the set columns drifted between the header and the two teams. Both screens now share fixed-width set columns, aligned to the end, wide enough for a tie-break. Every row reserves three set columns, so set 1 stays in the same place when one match has two sets and another has three.
+
+Checked with `compileDebugKotlinAndroid`, `ktlintCheck`, and `detekt` on the match UI module.
+
+See `docs/screenshots/task2-aligned-scores-matches.png` and `docs/screenshots/task2-aligned-scores-match.png`.
+
 ## Development Guidance
 
 See [AGENTS.md](AGENTS.md) for module structure, architecture, coding conventions, verification commands, and testing guidance. [CLAUDE.md](CLAUDE.md) is the entry point for Claude Code and references those shared instructions.

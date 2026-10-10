@@ -45,6 +45,7 @@ import io.bifri.interview.cmp.padel.feature.match.domain.model.TournamentMatch.T
 import io.bifri.interview.cmp.padel.feature.match.domain.model.TournamentMatch.TeamIndex.TeamOne
 import io.bifri.interview.cmp.padel.feature.match.domain.model.TournamentMatch.TeamIndex.TeamTwo
 import io.bifri.interview.cmp.padel.feature.match.ui.MatchUiRes
+import io.bifri.interview.cmp.padel.feature.match.ui.component.SetScoreColumns
 import io.bifri.interview.cmp.padel.feature.match.ui.matches.MatchesNavigationAction.OpenMatch
 import io.bifri.interview.cmp.padel.feature.match.ui.matches.MatchesNavigationAction.ShowError
 import io.bifri.interview.cmp.padel.feature.match.ui.matches.MatchesState.UiState
@@ -256,12 +257,12 @@ private fun MatchListItem(
             )
             TeamSummaryRow(
                 teamName = match.teamOne?.name.orEmpty(),
-                games = match.scores.joinToString(" ") { it.teamOneGames.toString() },
+                games = match.scores.map { it.teamOneGames },
                 isWinner = match.winnerTeam == TeamOne,
             )
             TeamSummaryRow(
                 teamName = match.teamTwo?.name.orEmpty(),
-                games = match.scores.joinToString(" ") { it.teamTwoGames.toString() },
+                games = match.scores.map { it.teamTwoGames },
                 isWinner = match.winnerTeam == TeamTwo,
             )
         }
@@ -269,7 +270,7 @@ private fun MatchListItem(
 }
 
 @Composable
-private fun TeamSummaryRow(teamName: String, games: String, isWinner: Boolean) {
+private fun TeamSummaryRow(teamName: String, games: List<String?>, isWinner: Boolean) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.Top,
@@ -284,10 +285,10 @@ private fun TeamSummaryRow(teamName: String, games: String, isWinner: Boolean) {
             fontWeight = fontWeight,
             color = color,
         )
-        Text(
-            text = games,
-            fontWeight = fontWeight,
+        SetScoreColumns(
+            scores = games,
             color = color,
+            fontWeight = fontWeight,
         )
     }
 }
@@ -330,6 +331,11 @@ private fun MatchesScreenPreview() {
                         id = 2L,
                         teamOneName = "Lebron / Di Nenno",
                         teamTwoName = "Stupaczuk / Yanguas",
+                        scores = listOf(
+                            SetScore(setNumber = 1, teamOneGames = "6", teamTwoGames = "2"),
+                            SetScore(setNumber = 2, teamOneGames = "6(5)", teamTwoGames = "7"),
+                            SetScore(setNumber = 3, teamOneGames = "7", teamTwoGames = "6(4)"),
+                        ),
                     ),
                 ),
                 isDataLoading = false,
@@ -374,6 +380,18 @@ private fun previewMatch(
     id: Long,
     teamOneName: String,
     teamTwoName: String,
+    scores: List<SetScore> = listOf(
+        SetScore(
+            setNumber = 1,
+            teamOneGames = "6",
+            teamTwoGames = "4",
+        ),
+        SetScore(
+            setNumber = 2,
+            teamOneGames = "6",
+            teamTwoGames = "2",
+        ),
+    ),
 ) = TournamentMatch(
     id = id,
     courtName = "Center Court",
@@ -382,18 +400,7 @@ private fun previewMatch(
     roundName = "Semifinals",
     teamOne = Team(name = teamOneName),
     teamTwo = Team(name = teamTwoName),
-    scores = listOf(
-        SetScore(
-            setNumber = 1,
-            teamOneGames = "6",
-            teamTwoGames = "4",
-        ),
-        SetScore(
-            setNumber = 2,
-            teamOneGames = "3",
-            teamTwoGames = "2",
-        ),
-    ),
+    scores = scores,
     winnerTeam = TeamOne,
     playedAt = LocalDate.parse("2026-09-08"),
     scheduledAt = LocalDate.parse("2026-09-08"),
