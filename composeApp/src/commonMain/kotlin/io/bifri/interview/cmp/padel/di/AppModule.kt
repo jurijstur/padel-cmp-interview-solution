@@ -9,6 +9,9 @@ import io.bifri.interview.cmp.padel.core.network.NetworkModule
 import io.bifri.interview.cmp.padel.feature.match.data.di.MatchDataModule
 import io.bifri.interview.cmp.padel.feature.match.domain.di.MatchDomainModule
 import io.bifri.interview.cmp.padel.feature.match.ui.di.MatchUiModule
+import io.bifri.interview.cmp.padel.feature.player.data.di.PlayerDataModule
+import io.bifri.interview.cmp.padel.feature.player.domain.di.PlayerDomainModule
+import io.bifri.interview.cmp.padel.feature.player.ui.di.PlayerUiModule
 import io.bifri.interview.cmp.padel.feature.tournament.data.di.TournamentDataModule
 import io.bifri.interview.cmp.padel.feature.tournament.domain.di.TournamentDomainModule
 import io.bifri.interview.cmp.padel.feature.tournament.ui.di.TournamentUiModule
@@ -24,6 +27,9 @@ val AppModules: List<Module> = listOf(
     MatchDataModule,
     MatchDomainModule,
     MatchUiModule,
+    PlayerDataModule,
+    PlayerDomainModule,
+    PlayerUiModule,
     TournamentDataModule,
     TournamentDomainModule,
     TournamentUiModule,

@@ -13,4 +13,7 @@ sealed interface AppRoute : NavKey {
         val tournamentId: Long,
         val tournamentName: String,
     ) : AppRoute
+
+    @Serializable
+    data object Players : AppRoute
 }

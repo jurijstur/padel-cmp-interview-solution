@@ -87,6 +87,7 @@ The current remote data sources request:
 | `GET /api/tournaments/{id}/matches` | Tournament matches; `per_page=50`, `sort_by=updated_at`, `order_by=desc` |
 | `GET /api/matches/{id}` | Match details |
 | `GET {pairUrl}` from the match response | Pair details containing player photo URLs |
+| `GET /api/players` | Player list; `per_page=50`, `sort_by=name`, `order_by=asc` |
 
 The list requests fetch one page; incremental pagination is not implemented.
 
@@ -107,6 +108,14 @@ Set scores on the matches list were one string, so a tie-break such as `6(5)` ch
 Checked with `compileDebugKotlinAndroid`, `ktlintCheck`, and `detekt` on the match UI module.
 
 See `docs/screenshots/task2-aligned-scores-matches.png` and `docs/screenshots/task2-aligned-scores-match.png`.
+
+### Task 3: Players list
+
+A Players chip on the tournaments list opens the players screen on the app back stack, so back returns to the tournaments list. The tournaments module does not depend on the players module. With an API token the screen loads `GET /api/players`. Without a token it shows bundled demo players. The list shows name, ranking, and country, and a photo when the API provides one. Pull-to-refresh reloads the list, including after a failed load. The search field filters the loaded names in the screen state as the user types, and the clear button removes that filter without a new request.
+
+Checked with `compileDebugKotlinAndroid`, `test`, `ktlintCheck`, and `detekt` on the player modules.
+
+See `docs/screenshots/task3-players-list.png` and `docs/screenshots/task3-players-search.png`.
 
 ## Development Guidance
 

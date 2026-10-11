@@ -9,6 +9,7 @@ import io.bifri.interview.cmp.padel.core.ui.Event
 import io.bifri.interview.cmp.padel.core.ui.base.BaseViewModel
 import io.bifri.interview.cmp.padel.core.ui.input.InputThrottle.DefaultSkipDuration
 import io.bifri.interview.cmp.padel.feature.tournament.domain.usecase.GetTournamentsUseCase
+import io.bifri.interview.cmp.padel.feature.tournament.ui.tournaments.TournamentsNavigationAction.OpenPlayers
 import io.bifri.interview.cmp.padel.feature.tournament.ui.tournaments.TournamentsNavigationAction.OpenTournament
 import io.bifri.interview.cmp.padel.feature.tournament.ui.tournaments.TournamentsNavigationAction.ShowError
 import io.bifri.interview.cmp.padel.feature.tournament.ui.tournaments.TournamentsPartialState.DataLoaded
@@ -34,6 +35,7 @@ class TournamentsViewModel(
 ) : BaseViewModel(coroutineDispatcher, exceptionHandler) {
     private val refreshes = mutableSharedFlowOfInput<Unit>()
     private val tournamentClicks = mutableSharedFlowOfInput<Long>()
+    private val playersClicks = mutableSharedFlowOfInput<Unit>()
     private val state: Flow<TournamentsState> = _state
     internal val uiState = state.map { it.uiState }
     internal val events = state.mapNotNull { it.event }
@@ -46,10 +48,15 @@ class TournamentsViewModel(
         tournamentClicks.tryEmit(id)
     }
 
+    internal fun onPlayersClick() {
+        playersClicks.tryEmit(Unit)
+    }
+
     private val _state: Flow<TournamentsState>
         get() = merge(
             dataStream(),
             tournamentClicksStream(),
+            playersClicksStream(),
         )
             .catch {
                 exceptionHandler.handleException(it)
@@ -98,4 +105,8 @@ class TournamentsViewModel(
     private fun tournamentClicksStream(): Flow<TournamentsPartialState> = tournamentClicks
         .throttleTime(DefaultSkipDuration)
         .map { Navigate(OpenTournament(it)) }
+
+    private fun playersClicksStream(): Flow<TournamentsPartialState> = playersClicks
+        .throttleTime(DefaultSkipDuration)
+        .map { Navigate(OpenPlayers) }
 }

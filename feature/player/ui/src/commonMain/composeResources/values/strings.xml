@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<resources>
+    <string name="players_avatar_cd">%1$s avatar</string>
+    <string name="players_empty">No players</string>
+    <string name="players_load_error">Could not load players</string>
+    <string name="players_rank">Rank %1$s</string>
+    <string name="players_screen_title">Players</string>
+    <string name="players_search_clear_cd">Clear search</string>
+    <string name="players_search_empty">No players match this search</string>
+    <string name="players_search_label">Search by name</string>
+    <string name="players_unranked">Unranked</string>
+</resources>

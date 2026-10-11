@@ -6,6 +6,7 @@ import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.savedstate.serialization.SavedStateConfiguration
 import io.bifri.interview.cmp.padel.navigation.AppRoute.MatchGraph
+import io.bifri.interview.cmp.padel.navigation.AppRoute.Players
 import io.bifri.interview.cmp.padel.navigation.AppRoute.TournamentGraph
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
@@ -16,6 +17,7 @@ private val AppNavConfiguration = SavedStateConfiguration {
         polymorphic(baseClass = NavKey::class) {
             subclass(TournamentGraph::class)
             subclass(MatchGraph::class)
+            subclass(Players::class)
         }
     }
 }

@@ -2,7 +2,11 @@ package io.bifri.interview.cmp.padel.feature.tournament.ui.tournaments
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -11,6 +15,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Card
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
@@ -19,6 +24,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.bifri.interview.cmp.padel.core.designsystem.component.appbar.CollapsingTopAppBar
@@ -31,10 +37,12 @@ import io.bifri.interview.cmp.padel.core.ui.LifecycleCollectEffect
 import io.bifri.interview.cmp.padel.feature.tournament.domain.model.TournamentsTournament
 import io.bifri.interview.cmp.padel.feature.tournament.ui.TournamentUiRes
 import io.bifri.interview.cmp.padel.feature.tournament.ui.component.TournamentSummary
+import io.bifri.interview.cmp.padel.feature.tournament.ui.tournaments.TournamentsNavigationAction.OpenPlayers
 import io.bifri.interview.cmp.padel.feature.tournament.ui.tournaments.TournamentsNavigationAction.OpenTournament
 import io.bifri.interview.cmp.padel.feature.tournament.ui.tournaments.TournamentsNavigationAction.ShowError
 import io.bifri.interview.cmp.padel.feature.tournament.ui.tournaments.TournamentsState.UiState
 import io.bifri.interview.cmp.padel.feature.tournament.ui.tournaments_empty
+import io.bifri.interview.cmp.padel.feature.tournament.ui.tournaments_players_button
 import io.bifri.interview.cmp.padel.feature.tournament.ui.tournaments_screen_title
 import kotlinx.datetime.LocalDate
 import org.jetbrains.compose.resources.stringResource
@@ -43,6 +51,7 @@ import org.koin.compose.viewmodel.koinViewModel
 @Composable
 fun TournamentsRoute(
     onTournamentClick: (Long) -> Unit,
+    onPlayersClick: () -> Unit,
     onError: (Throwable) -> Unit,
     viewModel: TournamentsViewModel = koinViewModel(),
 ) {
@@ -52,11 +61,12 @@ fun TournamentsRoute(
         uiState = uiState,
         onRefresh = viewModel::onRefresh,
         onTournamentClick = viewModel::onTournamentClick,
+        onPlayersClick = viewModel::onPlayersClick,
     )
 
     LifecycleCollectEffect(
         stream = viewModel.events,
-        collector = { processEvents(it, onTournamentClick, onError) },
+        collector = { processEvents(it, onTournamentClick, onPlayersClick, onError) },
     )
 }
 
@@ -65,6 +75,7 @@ private fun TournamentsScreen(
     uiState: UiState?,
     onRefresh: () -> Unit,
     onTournamentClick: (Long) -> Unit,
+    onPlayersClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     if (uiState == null) return
@@ -83,27 +94,55 @@ private fun TournamentsScreen(
             )
         },
     ) { innerPadding ->
-        AppPullToRefreshBox(
-            isRefreshing = uiState.isDataLoading,
-            onRefresh = onRefresh,
-            topPadding = innerPadding.calculateTopPadding(),
+        val layoutDirection = LocalLayoutDirection.current
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(
+                    top = innerPadding.calculateTopPadding(),
+                    start = innerPadding.calculateStartPadding(layoutDirection),
+                    end = innerPadding.calculateEndPadding(layoutDirection),
+                ),
         ) {
-            val contentPadding = innerPadding.plus(PaddingValues(all = dimens.margin))
-
-            when {
-                (uiState.items.isEmpty() && !uiState.isDataLoading) -> EmptyTournaments(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .verticalScroll(rememberScrollState())
-                        .padding(contentPadding),
+            Row(
+                modifier = Modifier.padding(
+                    start = dimens.spacingMedium,
+                    end = dimens.spacingMedium,
+                    top = dimens.spacingMedium,
+                ),
+                horizontalArrangement = Arrangement.spacedBy(dimens.spacingSmall),
+            ) {
+                AssistChip(
+                    onClick = onPlayersClick,
+                    label = { Text(stringResource(TournamentUiRes.string.tournaments_players_button)) },
+                )
+            }
+            AppPullToRefreshBox(
+                isRefreshing = uiState.isDataLoading,
+                onRefresh = onRefresh,
+            ) {
+                val contentPadding = PaddingValues(
+                    start = dimens.margin,
+                    end = dimens.margin,
+                    top = dimens.spacingSmall,
+                    bottom = innerPadding.calculateBottomPadding().plus(dimens.margin),
                 )
 
-                else -> TournamentsContent(
-                    modifier = Modifier.fillMaxSize(),
-                    items = uiState.items,
-                    contentPadding = contentPadding,
-                    onTournamentClick = onTournamentClick,
-                )
+                when {
+                    (uiState.items.isEmpty() && !uiState.isDataLoading) -> EmptyTournaments(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .verticalScroll(rememberScrollState())
+                            .padding(contentPadding),
+                    )
+
+                    else -> TournamentsContent(
+                        modifier = Modifier.fillMaxSize(),
+                        items = uiState.items,
+                        contentPadding = contentPadding,
+                        onTournamentClick = onTournamentClick,
+                    )
+                }
             }
         }
     }
@@ -153,11 +192,13 @@ private fun TournamentsContent(
 private fun processEvents(
     event: Event<TournamentsNavigationAction>,
     onTournamentClick: (Long) -> Unit,
+    onPlayersClick: () -> Unit,
     onError: (Throwable) -> Unit,
 ) {
     val action = event.getContentIfNotHandled() ?: return
     when (action) {
         is OpenTournament -> onTournamentClick(action.tournamentId)
+        OpenPlayers -> onPlayersClick()
         is ShowError -> onError(action.error)
     }
 }
@@ -181,6 +222,7 @@ private fun TournamentsScreenPreview() {
                 isDataLoading = false,
             ),
             onTournamentClick = {},
+            onPlayersClick = {},
             onRefresh = {},
         )
     }
@@ -193,6 +235,7 @@ private fun TournamentsScreenLoadingPreview() {
         TournamentsScreen(
             uiState = UiState(isDataLoading = true),
             onTournamentClick = {},
+            onPlayersClick = {},
             onRefresh = {},
         )
     }
@@ -208,6 +251,7 @@ private fun TournamentsScreenEmptyPreview() {
                 isDataLoading = false,
             ),
             onTournamentClick = {},
+            onPlayersClick = {},
             onRefresh = {},
         )
     }
