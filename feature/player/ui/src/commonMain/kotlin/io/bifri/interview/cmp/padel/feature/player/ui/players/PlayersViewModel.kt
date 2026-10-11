@@ -1,12 +1,15 @@
 package io.bifri.interview.cmp.padel.feature.player.ui.players
 
 import androidx.lifecycle.viewModelScope
+import com.hoc081098.flowext.throttleTime
 import io.bifri.interview.cmp.padel.core.coroutines.extension.mutableSharedFlowOfInput
 import io.bifri.interview.cmp.padel.core.coroutines.extension.stateInViewModel
 import io.bifri.interview.cmp.padel.core.exception.ExceptionHandler
 import io.bifri.interview.cmp.padel.core.ui.Event
 import io.bifri.interview.cmp.padel.core.ui.base.BaseViewModel
+import io.bifri.interview.cmp.padel.core.ui.input.InputThrottle.DefaultSkipDuration
 import io.bifri.interview.cmp.padel.feature.player.domain.usecase.GetPlayersUseCase
+import io.bifri.interview.cmp.padel.feature.player.ui.players.PlayersNavigationAction.OpenPlayer
 import io.bifri.interview.cmp.padel.feature.player.ui.players.PlayersNavigationAction.ShowError
 import io.bifri.interview.cmp.padel.feature.player.ui.players.PlayersPartialState.DataLoaded
 import io.bifri.interview.cmp.padel.feature.player.ui.players.PlayersPartialState.DataLoading
@@ -32,6 +35,7 @@ class PlayersViewModel(
 ) : BaseViewModel(coroutineDispatcher, exceptionHandler) {
     private val refreshes = mutableSharedFlowOfInput<Unit>()
     private val nameQueries = mutableSharedFlowOfInput<String>()
+    private val playerClicks = mutableSharedFlowOfInput<Long>()
     private val state: Flow<PlayersState> = _state
     internal val uiState = state.map { it.uiState }
     internal val events = state.mapNotNull { it.event }
@@ -44,10 +48,15 @@ class PlayersViewModel(
         nameQueries.tryEmit(query)
     }
 
+    internal fun onPlayerClick(playerId: Long) {
+        playerClicks.tryEmit(playerId)
+    }
+
     private val _state: Flow<PlayersState>
         get() = merge(
             dataStream(),
             nameQueryStream(),
+            playerClicksStream(),
         )
             .catch {
                 exceptionHandler.handleException(it)
@@ -73,6 +82,10 @@ class PlayersViewModel(
         }
 
     private fun nameQueryStream(): Flow<PlayersPartialState> = nameQueries.map(::NameQueryChanged)
+
+    private fun playerClicksStream(): Flow<PlayersPartialState> = playerClicks
+        .throttleTime(DefaultSkipDuration)
+        .map { Navigate(OpenPlayer(it)) }
 }
 
 internal fun reducePlayersState(

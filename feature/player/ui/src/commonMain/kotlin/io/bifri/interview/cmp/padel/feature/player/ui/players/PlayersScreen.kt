@@ -50,6 +50,7 @@ import io.bifri.interview.cmp.padel.core.ui.Event
 import io.bifri.interview.cmp.padel.core.ui.LifecycleCollectEffect
 import io.bifri.interview.cmp.padel.feature.player.domain.model.Player
 import io.bifri.interview.cmp.padel.feature.player.ui.PlayerUiRes
+import io.bifri.interview.cmp.padel.feature.player.ui.players.PlayersNavigationAction.OpenPlayer
 import io.bifri.interview.cmp.padel.feature.player.ui.players.PlayersNavigationAction.ShowError
 import io.bifri.interview.cmp.padel.feature.player.ui.players.PlayersState.UiState
 import io.bifri.interview.cmp.padel.feature.player.ui.players_empty
@@ -67,6 +68,7 @@ private val LoadingSkeletonHeight = 72.dp
 @Composable
 fun PlayersRoute(
     onBackClick: () -> Unit,
+    onPlayerClick: (Long) -> Unit,
     onError: (Throwable) -> Unit,
     viewModel: PlayersViewModel = koinViewModel(),
 ) {
@@ -76,12 +78,13 @@ fun PlayersRoute(
         uiState = uiState,
         onRefresh = viewModel::onRefresh,
         onNameQueryChange = viewModel::onNameQueryChange,
+        onPlayerClick = viewModel::onPlayerClick,
         onBackClick = onBackClick,
     )
 
     LifecycleCollectEffect(
         stream = viewModel.events,
-        collector = { processEvents(it, onError) },
+        collector = { processEvents(it, onPlayerClick, onError) },
     )
 }
 
@@ -90,6 +93,7 @@ private fun PlayersScreen(
     uiState: UiState?,
     onRefresh: () -> Unit,
     onNameQueryChange: (String) -> Unit,
+    onPlayerClick: (Long) -> Unit,
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -98,7 +102,6 @@ private fun PlayersScreen(
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(
         state = rememberTopAppBarState(),
     )
-
     AppScaffold(
         modifier = modifier,
         scrollBehavior = scrollBehavior,
@@ -164,6 +167,7 @@ private fun PlayersScreen(
 
                         else -> PlayersContent(
                             players = uiState.visiblePlayers,
+                            onPlayerClick = onPlayerClick,
                             modifier = Modifier.fillMaxSize(),
                         )
                     }
@@ -244,6 +248,7 @@ private fun PlayersMessage(
 @Composable
 private fun PlayersContent(
     players: List<Player>,
+    onPlayerClick: (Long) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     LazyColumn(
@@ -254,14 +259,22 @@ private fun PlayersContent(
             items = players,
             key = { it.id },
         ) { player ->
-            PlayerRow(player = player)
+            PlayerRow(
+                player = player,
+                onClick = { onPlayerClick(player.id) },
+            )
         }
     }
 }
 
-private fun processEvents(event: Event<PlayersNavigationAction>, onError: (Throwable) -> Unit) {
+private fun processEvents(
+    event: Event<PlayersNavigationAction>,
+    onPlayerClick: (Long) -> Unit,
+    onError: (Throwable) -> Unit,
+) {
     val action = event.getContentIfNotHandled() ?: return
     when (action) {
+        is OpenPlayer -> onPlayerClick(action.playerId)
         is ShowError -> onError(action.error)
     }
 }
@@ -282,6 +295,7 @@ private fun PlayersScreenPreview() {
             ),
             onRefresh = {},
             onNameQueryChange = {},
+            onPlayerClick = {},
             onBackClick = {},
         )
     }
@@ -299,6 +313,7 @@ private fun PlayersScreenSearchEmptyPreview() {
             ),
             onRefresh = {},
             onNameQueryChange = {},
+            onPlayerClick = {},
             onBackClick = {},
         )
     }

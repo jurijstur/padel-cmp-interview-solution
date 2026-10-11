@@ -16,21 +16,21 @@ internal class DemoMatchDataSource {
                 teamOne = listOf(
                     PlayerDto(
                         name = "Agustin Tapia",
-                        connections = PlayerConnectionsDto(pair = "/api/pairs/66-65"),
+                        connections = PlayerConnectionsDto(pair = "/api/pairs/2-1"),
                     ),
                     PlayerDto(
                         name = "Arturo Coello",
-                        connections = PlayerConnectionsDto(pair = "/api/pairs/66-65"),
+                        connections = PlayerConnectionsDto(pair = "/api/pairs/2-1"),
                     ),
                 ),
                 teamTwo = listOf(
                     PlayerDto(
                         name = "Federico Chingotto",
-                        connections = PlayerConnectionsDto(pair = "/api/pairs/114-115"),
+                        connections = PlayerConnectionsDto(pair = "/api/pairs/5-3"),
                     ),
                     PlayerDto(
                         name = "Alejandro Galan",
-                        connections = PlayerConnectionsDto(pair = "/api/pairs/114-115"),
+                        connections = PlayerConnectionsDto(pair = "/api/pairs/5-3"),
                     ),
                 ),
             ),
@@ -58,11 +58,11 @@ internal class DemoMatchDataSource {
                 teamOne = listOf(
                     PlayerDto(
                         name = "Gemma Triay Pons",
-                        connections = PlayerConnectionsDto(pair = "/api/pairs/433-434"),
+                        connections = PlayerConnectionsDto(pair = "/api/pairs/6-7"),
                     ),
                     PlayerDto(
                         name = "Delfina Brea Senesi",
-                        connections = PlayerConnectionsDto(pair = "/api/pairs/433-434"),
+                        connections = PlayerConnectionsDto(pair = "/api/pairs/6-7"),
                     ),
                 ),
                 teamTwo = listOf(
@@ -106,11 +106,11 @@ internal class DemoMatchDataSource {
                 teamTwo = listOf(
                     PlayerDto(
                         name = "Alejandro Galan",
-                        connections = PlayerConnectionsDto(pair = "/api/pairs/115-114"),
+                        connections = PlayerConnectionsDto(pair = "/api/pairs/3-5"),
                     ),
                     PlayerDto(
                         name = "Federico Chingotto",
-                        connections = PlayerConnectionsDto(pair = "/api/pairs/115-114"),
+                        connections = PlayerConnectionsDto(pair = "/api/pairs/3-5"),
                     ),
                 ),
             ),
@@ -138,11 +138,11 @@ internal class DemoMatchDataSource {
                 teamOne = listOf(
                     PlayerDto(
                         name = "Gemma Triay Pons",
-                        connections = PlayerConnectionsDto(pair = "/api/pairs/433-434"),
+                        connections = PlayerConnectionsDto(pair = "/api/pairs/6-7"),
                     ),
                     PlayerDto(
                         name = "Delfina Brea Senesi",
-                        connections = PlayerConnectionsDto(pair = "/api/pairs/433-434"),
+                        connections = PlayerConnectionsDto(pair = "/api/pairs/6-7"),
                     ),
                 ),
                 teamTwo = listOf(
@@ -180,11 +180,11 @@ internal class DemoMatchDataSource {
                 teamOne = listOf(
                     PlayerDto(
                         name = "Agustin Tapia",
-                        connections = PlayerConnectionsDto(pair = "/api/pairs/66-65"),
+                        connections = PlayerConnectionsDto(pair = "/api/pairs/2-1"),
                     ),
                     PlayerDto(
                         name = "Arturo Coello",
-                        connections = PlayerConnectionsDto(pair = "/api/pairs/66-65"),
+                        connections = PlayerConnectionsDto(pair = "/api/pairs/2-1"),
                     ),
                 ),
                 teamTwo = listOf(
@@ -228,11 +228,11 @@ internal class DemoMatchDataSource {
                 teamTwo = listOf(
                     PlayerDto(
                         name = "Federico Chingotto",
-                        connections = PlayerConnectionsDto(pair = "/api/pairs/114-115"),
+                        connections = PlayerConnectionsDto(pair = "/api/pairs/5-3"),
                     ),
                     PlayerDto(
                         name = "Alejandro Galan",
-                        connections = PlayerConnectionsDto(pair = "/api/pairs/114-115"),
+                        connections = PlayerConnectionsDto(pair = "/api/pairs/5-3"),
                     ),
                 ),
             ),
@@ -256,11 +256,11 @@ internal class DemoMatchDataSource {
                 teamOne = listOf(
                     PlayerDto(
                         name = "Arturo Coello",
-                        connections = PlayerConnectionsDto(pair = "/api/pairs/65-66"),
+                        connections = PlayerConnectionsDto(pair = "/api/pairs/1-2"),
                     ),
                     PlayerDto(
                         name = "Agustin Tapia",
-                        connections = PlayerConnectionsDto(pair = "/api/pairs/65-66"),
+                        connections = PlayerConnectionsDto(pair = "/api/pairs/1-2"),
                     ),
                 ),
                 teamTwo = listOf(
@@ -304,11 +304,11 @@ internal class DemoMatchDataSource {
                 teamTwo = listOf(
                     PlayerDto(
                         name = "Alejandro Galan",
-                        connections = PlayerConnectionsDto(pair = "/api/pairs/115-114"),
+                        connections = PlayerConnectionsDto(pair = "/api/pairs/3-5"),
                     ),
                     PlayerDto(
                         name = "Federico Chingotto",
-                        connections = PlayerConnectionsDto(pair = "/api/pairs/115-114"),
+                        connections = PlayerConnectionsDto(pair = "/api/pairs/3-5"),
                     ),
                 ),
             ),
@@ -332,11 +332,11 @@ internal class DemoMatchDataSource {
                 teamOne = listOf(
                     PlayerDto(
                         name = "Gemma Triay Pons",
-                        connections = PlayerConnectionsDto(pair = "/api/pairs/433-434"),
+                        connections = PlayerConnectionsDto(pair = "/api/pairs/6-7"),
                     ),
                     PlayerDto(
                         name = "Delfina Brea Senesi",
-                        connections = PlayerConnectionsDto(pair = "/api/pairs/433-434"),
+                        connections = PlayerConnectionsDto(pair = "/api/pairs/6-7"),
                     ),
                 ),
                 teamTwo = listOf(
@@ -370,11 +370,11 @@ internal class DemoMatchDataSource {
                 teamOne = listOf(
                     PlayerDto(
                         name = "Agustin Tapia",
-                        connections = PlayerConnectionsDto(pair = "/api/pairs/66-65"),
+                        connections = PlayerConnectionsDto(pair = "/api/pairs/2-1"),
                     ),
                     PlayerDto(
                         name = "Arturo Coello",
-                        connections = PlayerConnectionsDto(pair = "/api/pairs/66-65"),
+                        connections = PlayerConnectionsDto(pair = "/api/pairs/2-1"),
                     ),
                 ),
                 teamTwo = listOf(

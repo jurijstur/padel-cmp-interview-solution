@@ -6,4 +6,6 @@ internal class DemoPlayerRepository(
     private val playersDataSource: DemoPlayersDataSource,
 ) : PlayerRepository {
     override suspend fun getPlayers() = playersDataSource.getPlayers()
+
+    override suspend fun getPlayer(playerId: Long) = playersDataSource.getPlayer(playerId)
 }

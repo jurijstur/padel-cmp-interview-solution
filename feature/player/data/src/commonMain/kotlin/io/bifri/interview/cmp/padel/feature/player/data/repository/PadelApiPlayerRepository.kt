@@ -6,4 +6,6 @@ internal class PadelApiPlayerRepository(
     private val remoteDataSource: PlayerRemoteDataSource,
 ) : PlayerRepository {
     override suspend fun getPlayers() = remoteDataSource.getPlayers()
+
+    override suspend fun getPlayer(playerId: Long) = remoteDataSource.getPlayer(playerId)
 }

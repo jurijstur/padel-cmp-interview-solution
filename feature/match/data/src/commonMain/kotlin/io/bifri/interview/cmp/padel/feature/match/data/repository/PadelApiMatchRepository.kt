@@ -20,27 +20,40 @@ internal class PadelApiMatchRepository(
         val matchResponseDto = remoteDataSource.getMatch(matchId)
         val teamOnePath = matchResponseDto.players?.teamOne?.firstOrNull()?.connections?.pair
         val teamTwoPath = matchResponseDto.players?.teamTwo?.firstOrNull()?.connections?.pair
-        val teamOnePlayerPhotoUrlsDeferred = getTeamPlayerPhotoUrls(teamOnePath)
-        val teamTwoPlayerPhotoUrlsDeferred = getTeamPlayerPhotoUrls(teamTwoPath)
+        val teamOnePlayersDeferred = getTeamPlayers(teamOnePath)
+        val teamTwoPlayersDeferred = getTeamPlayers(teamTwoPath)
+        val teamOnePlayers = teamOnePlayersDeferred.await()
+        val teamTwoPlayers = teamTwoPlayersDeferred.await()
 
         MatchWithPhotosDto(
             match = matchResponseDto,
-            teamOnePlayerPhotoUrls = teamOnePlayerPhotoUrlsDeferred.await(),
-            teamTwoPlayerPhotoUrls = teamTwoPlayerPhotoUrlsDeferred.await(),
+            teamOnePlayerPhotoUrls = teamOnePlayers.photoUrls,
+            teamTwoPlayerPhotoUrls = teamTwoPlayers.photoUrls,
+            teamOnePlayerIds = teamOnePlayers.ids,
+            teamTwoPlayerIds = teamTwoPlayers.ids,
         )
     }
 
     @Suppress("TooGenericExceptionCaught")
-    private fun CoroutineScope.getTeamPlayerPhotoUrls(teamPhotoPath: String?): Deferred<List<String?>> = async {
-        teamPhotoPath ?: return@async emptyList()
+    private fun CoroutineScope.getTeamPlayers(teamPhotoPath: String?): Deferred<TeamPlayers> = async {
+        teamPhotoPath ?: return@async TeamPlayers(ids = emptyList(), photoUrls = emptyList())
 
         try {
-            remoteDataSource.getPair(teamPhotoPath).players?.map { it?.photoUrl }.orEmpty()
+            val players = remoteDataSource.getPair(teamPhotoPath).players.orEmpty()
+            TeamPlayers(
+                ids = players.map { it?.id },
+                photoUrls = players.map { it?.photoUrl },
+            )
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
             exceptionHandler.handleException(e)
-            emptyList()
+            TeamPlayers(ids = emptyList(), photoUrls = emptyList())
         }
     }
 }
+
+private data class TeamPlayers(
+    val ids: List<Long?>,
+    val photoUrls: List<String?>,
+)

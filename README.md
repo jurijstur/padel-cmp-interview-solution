@@ -86,8 +86,9 @@ The current remote data sources request:
 | `GET /api/tournaments/{id}` | Tournament details |
 | `GET /api/tournaments/{id}/matches` | Tournament matches; `per_page=50`, `sort_by=updated_at`, `order_by=desc` |
 | `GET /api/matches/{id}` | Match details |
-| `GET {pairUrl}` from the match response | Pair details containing player photo URLs |
+| `GET {pairUrl}` from the match response | Pair details containing player ids and photo URLs |
 | `GET /api/players` | Player list; `per_page=50`, `sort_by=name`, `order_by=asc` |
+| `GET /api/players/{id}` | Player details |
 
 The list requests fetch one page; incremental pagination is not implemented.
 
@@ -116,6 +117,18 @@ A Players chip on the tournaments list opens the players screen on the app back 
 Checked with `compileDebugKotlinAndroid`, `test`, `ktlintCheck`, and `detekt` on the player modules.
 
 See `docs/screenshots/task3-players-list.png` and `docs/screenshots/task3-players-search.png`.
+
+### Task 4: Player detail
+
+Tapping a player on the players list, or a player name on match detail, opens that player's screen. The screen is an entry on the app back stack, so back returns to the screen that opened it and the list or match underneath stays where it was.
+
+With an API token the screen loads `GET /api/players/{id}`. Without a token it shows the bundled demo player. A missing player shows "Player not found". Other failures show a scrollable error that can be pulled to retry. A player who is already on screen stays visible if a later refresh fails.
+
+The screen shows the photo when one is available, plus ranking, country, points, Elo, category, side, hand, height, birthplace, and age from that response. Match detail takes each player's id from the pair response. If that request fails, the name stays on the match and is not clickable. Demo matches read ids from pair paths that use the same ids as the demo players, so those names open the demo profile. A name that is not in the demo set shows player not found.
+
+Checked with `compileDebugKotlinAndroid`, `test`, `ktlintCheck`, `detekt`, and `lint`. Reducer tests cover a failed load, a missing player, a successful load, and a refresh that fails after the player is already shown.
+
+See `docs/screenshots/task4-player-detail.png` and `docs/screenshots/task4-player-from-match.png`.
 
 ## Development Guidance
 

@@ -31,8 +31,14 @@ import org.jetbrains.compose.resources.stringResource
 private val PlayerAvatarSize = 40.dp
 
 @Composable
-internal fun PlayerRow(player: Player) {
-    Card(modifier = Modifier.fillMaxWidth()) {
+internal fun PlayerRow(
+    player: Player,
+    onClick: () -> Unit,
+) {
+    Card(
+        onClick = onClick,
+        modifier = Modifier.fillMaxWidth(),
+    ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()

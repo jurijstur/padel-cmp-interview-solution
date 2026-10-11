@@ -1,6 +1,7 @@
 package io.bifri.interview.cmp.padel.feature.match.ui.match
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -49,6 +50,7 @@ import io.bifri.interview.cmp.padel.feature.match.domain.model.Match.TeamIndex.T
 import io.bifri.interview.cmp.padel.feature.match.domain.model.Match.TeamIndex.TeamTwo
 import io.bifri.interview.cmp.padel.feature.match.ui.MatchUiRes
 import io.bifri.interview.cmp.padel.feature.match.ui.component.SetScoreColumns
+import io.bifri.interview.cmp.padel.feature.match.ui.match.MatchNavigationAction.OpenPlayer
 import io.bifri.interview.cmp.padel.feature.match.ui.match.MatchNavigationAction.ShowError
 import io.bifri.interview.cmp.padel.feature.match.ui.match.MatchState.UiState
 import io.bifri.interview.cmp.padel.feature.match.ui.match_court
@@ -68,6 +70,7 @@ fun MatchRoute(
     tournamentName: String,
     totalCourts: Int?,
     onBackClick: () -> Unit,
+    onPlayerClick: (Long) -> Unit,
     onError: (Throwable) -> Unit,
     viewModel: MatchViewModel = koinViewModel(key = matchId.toString()) {
         parametersOf(matchId, tournamentName, totalCourts)
@@ -78,12 +81,13 @@ fun MatchRoute(
     MatchScreen(
         uiState = uiState,
         onBackClick = onBackClick,
+        onPlayerClick = viewModel::onPlayerClick,
         onRefresh = viewModel::onRefresh,
     )
 
     LifecycleCollectEffect(
         stream = viewModel.events,
-        collector = { processEvents(it, onError) },
+        collector = { processEvents(it, onPlayerClick, onError) },
     )
 }
 
@@ -91,6 +95,7 @@ fun MatchRoute(
 private fun MatchScreen(
     uiState: UiState?,
     onBackClick: () -> Unit,
+    onPlayerClick: (Long) -> Unit,
     onRefresh: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -139,6 +144,7 @@ private fun MatchScreen(
                     modifier = contentModifier,
                     match = match,
                     totalCourts = uiState.totalCourts,
+                    onPlayerClick = onPlayerClick,
                 )
 
                 uiState.isDataLoadError -> MatchLoadError(modifier = contentModifier)
@@ -168,6 +174,7 @@ private fun MatchLoadError(
 private fun MatchContent(
     match: Match,
     totalCourts: Int?,
+    onPlayerClick: (Long) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -178,7 +185,10 @@ private fun MatchContent(
             courtName = match.courtName,
             totalCourts = totalCourts,
         )
-        ScoreboardCard(match = match)
+        ScoreboardCard(
+            match = match,
+            onPlayerClick = onPlayerClick,
+        )
     }
 }
 
@@ -208,7 +218,10 @@ private fun Court(
 }
 
 @Composable
-private fun ScoreboardCard(match: Match) {
+private fun ScoreboardCard(
+    match: Match,
+    onPlayerClick: (Long) -> Unit,
+) {
     Card(
         modifier = Modifier.fillMaxWidth(),
     ) {
@@ -238,12 +251,14 @@ private fun ScoreboardCard(match: Match) {
                 team = match.teamOne,
                 setGames = match.scores.map { it.teamOneGames },
                 isWinner = match.winnerTeam == TeamOne,
+                onPlayerClick = onPlayerClick,
             )
             HorizontalDivider()
             TeamScoreRow(
                 team = match.teamTwo,
                 setGames = match.scores.map { it.teamTwoGames },
                 isWinner = match.winnerTeam == TeamTwo,
+                onPlayerClick = onPlayerClick,
             )
         }
     }
@@ -254,6 +269,7 @@ private fun TeamScoreRow(
     team: Team?,
     setGames: List<String?>,
     isWinner: Boolean,
+    onPlayerClick: (Long) -> Unit,
 ) {
     team ?: return
 
@@ -271,13 +287,22 @@ private fun TeamScoreRow(
                 val fontWeight = if (isWinner) FontWeight.Bold else FontWeight.Normal
                 val color = if (isWinner) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
 
+                val playerId = player.id
                 PlayerAvatar(
                     photoUrl = player.playerPhotoUrl,
                     contentDescription = stringResource(MatchUiRes.string.match_player_avatar_cd, player),
                 )
                 Text(
                     text = player.name.orEmpty(),
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier
+                        .weight(1f)
+                        .then(
+                            if (playerId != null) {
+                                Modifier.clickable { onPlayerClick(playerId) }
+                            } else {
+                                Modifier
+                            },
+                        ),
                     fontWeight = fontWeight,
                     color = color,
                 )
@@ -311,9 +336,14 @@ private fun PlayerAvatar(photoUrl: String?, contentDescription: String) {
     )
 }
 
-private fun processEvents(event: Event<MatchNavigationAction>, onError: (Throwable) -> Unit) {
+private fun processEvents(
+    event: Event<MatchNavigationAction>,
+    onPlayerClick: (Long) -> Unit,
+    onError: (Throwable) -> Unit,
+) {
     val action = event.getContentIfNotHandled() ?: return
     when (action) {
+        is OpenPlayer -> onPlayerClick(action.playerId)
         is ShowError -> onError(action.error)
     }
 }
@@ -329,6 +359,7 @@ private fun MatchScreenPreview() {
                 totalCourts = 8,
             ),
             onBackClick = {},
+            onPlayerClick = {},
             onRefresh = {},
         )
     }
@@ -345,6 +376,7 @@ private fun MatchScreenErrorPreview() {
                 totalCourts = 8,
             ),
             onBackClick = {},
+            onPlayerClick = {},
             onRefresh = {},
         )
     }
@@ -361,6 +393,7 @@ private fun MatchScreenLoadingPreview() {
                 totalCourts = 8,
             ),
             onBackClick = {},
+            onPlayerClick = {},
             onRefresh = {},
         )
     }
@@ -373,10 +406,12 @@ private fun previewMatch() = Match(
     teamOne = Team(
         players = listOf(
             Team.Player(
+                id = 1L,
                 name = "Ozols",
                 playerPhotoUrl = null,
             ),
             Team.Player(
+                id = 2L,
                 name = "Kalnins",
                 playerPhotoUrl = null,
             ),
@@ -385,10 +420,12 @@ private fun previewMatch() = Match(
     teamTwo = Team(
         players = listOf(
             Team.Player(
+                id = 3L,
                 name = "Garcia",
                 playerPhotoUrl = null,
             ),
             Team.Player(
+                id = 4L,
                 name = "Silva",
                 playerPhotoUrl = null,
             ),

@@ -8,9 +8,11 @@ import androidx.navigation3.ui.NavDisplay
 import androidx.navigation3.ui.defaultPopTransitionSpec
 import io.bifri.interview.cmp.padel.core.ui.navigation.pop
 import io.bifri.interview.cmp.padel.feature.match.ui.navigation.MatchNavDisplay
+import io.bifri.interview.cmp.padel.feature.player.ui.player.PlayerRoute
 import io.bifri.interview.cmp.padel.feature.player.ui.players.PlayersRoute
 import io.bifri.interview.cmp.padel.feature.tournament.ui.navigation.TournamentNavDisplay
 import io.bifri.interview.cmp.padel.navigation.AppRoute.MatchGraph
+import io.bifri.interview.cmp.padel.navigation.AppRoute.PlayerDetail
 import io.bifri.interview.cmp.padel.navigation.AppRoute.Players
 import io.bifri.interview.cmp.padel.navigation.AppRoute.TournamentGraph
 
@@ -35,6 +37,7 @@ fun AppNavDisplay(
             entry<Players> {
                 PlayersRoute(
                     onBackClick = { backStack.pop() },
+                    onPlayerClick = { backStack.add(PlayerDetail(playerId = it)) },
                     onError = onError,
                 )
             }
@@ -42,6 +45,14 @@ fun AppNavDisplay(
                 MatchNavDisplay(
                     tournamentId = route.tournamentId,
                     tournamentName = route.tournamentName,
+                    onBackClick = { backStack.pop() },
+                    onPlayerClick = { backStack.add(PlayerDetail(playerId = it)) },
+                    onError = onError,
+                )
+            }
+            entry<PlayerDetail> { route ->
+                PlayerRoute(
+                    playerId = route.playerId,
                     onBackClick = { backStack.pop() },
                     onError = onError,
                 )

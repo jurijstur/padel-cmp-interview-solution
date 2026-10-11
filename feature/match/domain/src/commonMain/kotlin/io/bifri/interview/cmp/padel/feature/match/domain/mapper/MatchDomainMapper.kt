@@ -15,26 +15,42 @@ class MatchDomainMapper {
     fun MatchWithPhotosDto.toDomain() = match.toMatch(
         teamOnePlayerPhotoUrls = teamOnePlayerPhotoUrls,
         teamTwoPlayerPhotoUrls = teamTwoPlayerPhotoUrls,
+        teamOnePlayerIds = teamOnePlayerIds,
+        teamTwoPlayerIds = teamTwoPlayerIds,
+        usePairPathPlayerIds = usePairPathPlayerIds,
     )
 
     private fun MatchResponseDto.toMatch(
         teamOnePlayerPhotoUrls: List<String?>,
         teamTwoPlayerPhotoUrls: List<String?>,
+        teamOnePlayerIds: List<Long?>,
+        teamTwoPlayerIds: List<Long?>,
+        usePairPathPlayerIds: Boolean,
     ) = Match(
         id = requireNotNull(id),
         courtName = court,
         roundName = roundName,
-        teamOne = players?.teamOne.toTeam(teamOnePlayerPhotoUrls),
-        teamTwo = players?.teamTwo.toTeam(teamTwoPlayerPhotoUrls),
+        teamOne = players?.teamOne.toTeam(teamOnePlayerPhotoUrls, teamOnePlayerIds, usePairPathPlayerIds),
+        teamTwo = players?.teamTwo.toTeam(teamTwoPlayerPhotoUrls, teamTwoPlayerIds, usePairPathPlayerIds),
         scores = score?.mapIndexed { index, score -> score.toSetScore(index + 1) }.orEmpty(),
         winnerTeam = winner.toTeamIndex(),
     )
 
-    private fun List<PlayerDto?>?.toTeam(playerPhotoUrls: List<String?>) = this
+    private fun List<PlayerDto?>?.toTeam(
+        playerPhotoUrls: List<String?>,
+        playerIds: List<Long?>,
+        usePairPathPlayerIds: Boolean,
+    ) = this
         ?.withIndex()
         ?.mapNotNull { (index, playerDto) ->
             playerDto?.let {
+                val pairPathId = if (usePairPathPlayerIds) {
+                    playerIdFromPairPath(playerDto.connections?.pair, index)
+                } else {
+                    null
+                }
                 Player(
+                    id = playerIds.getOrNull(index) ?: pairPathId,
                     name = playerDto.name,
                     playerPhotoUrl = playerPhotoUrls.getOrNull(index),
                 )
@@ -53,4 +69,13 @@ class MatchDomainMapper {
         "team_2" -> TeamIndex.TeamTwo
         else -> null
     }
+}
+
+internal fun playerIdFromPairPath(pairPath: String?, playerIndex: Int): Long? {
+    if (playerIndex < 0) return null
+    return pairPath
+        ?.substringAfterLast('/')
+        ?.split('-')
+        ?.getOrNull(playerIndex)
+        ?.toLongOrNull()
 }

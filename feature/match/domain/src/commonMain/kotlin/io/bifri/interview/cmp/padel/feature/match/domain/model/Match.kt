@@ -13,6 +13,7 @@ data class Match(
         val players: List<Player>,
     ) {
         data class Player(
+            val id: Long?,
             val name: String?,
             val playerPhotoUrl: String?,
         )

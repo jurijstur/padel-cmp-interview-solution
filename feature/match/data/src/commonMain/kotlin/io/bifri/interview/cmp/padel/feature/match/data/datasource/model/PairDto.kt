@@ -9,6 +9,7 @@ data class PairDto(
 ) {
     @Serializable
     data class PairPlayerDto(
+        @SerialName("id") val id: Long? = null,
         @SerialName("photo_url") val photoUrl: String? = null,
     )
 }

@@ -14,5 +14,7 @@ internal class DemoMatchRepository(
         match = demoMatchDataSource.getMatch(matchId),
         teamOnePlayerPhotoUrls = emptyList(),
         teamTwoPlayerPhotoUrls = emptyList(),
+        // Demo pair paths are written in team order. A failed remote pair request does not use this.
+        usePairPathPlayerIds = true,
     )
 }

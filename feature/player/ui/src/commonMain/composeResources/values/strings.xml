@@ -1,5 +1,19 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <resources>
+    <string name="player_age">Age</string>
+    <string name="player_birthplace">Birthplace</string>
+    <string name="player_category">Category</string>
+    <string name="player_country">Country</string>
+    <string name="player_elo">Elo</string>
+    <string name="player_hand">Hand</string>
+    <string name="player_height">Height</string>
+    <string name="player_height_cm">%1$s cm</string>
+    <string name="player_load_error">Could not load this player</string>
+    <string name="player_not_found">Player not found</string>
+    <string name="player_photo_cd">%1$s photo</string>
+    <string name="player_points">Points</string>
+    <string name="player_ranking">Ranking</string>
+    <string name="player_side">Side</string>
     <string name="players_avatar_cd">%1$s avatar</string>
     <string name="players_empty">No players</string>
     <string name="players_load_error">Could not load players</string>

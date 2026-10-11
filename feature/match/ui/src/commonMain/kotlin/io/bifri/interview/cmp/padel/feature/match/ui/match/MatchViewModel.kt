@@ -1,12 +1,15 @@
 package io.bifri.interview.cmp.padel.feature.match.ui.match
 
 import androidx.lifecycle.viewModelScope
+import com.hoc081098.flowext.throttleTime
 import io.bifri.interview.cmp.padel.core.coroutines.extension.mutableSharedFlowOfInput
 import io.bifri.interview.cmp.padel.core.coroutines.extension.stateInViewModel
 import io.bifri.interview.cmp.padel.core.exception.ExceptionHandler
 import io.bifri.interview.cmp.padel.core.ui.Event
 import io.bifri.interview.cmp.padel.core.ui.base.BaseViewModel
+import io.bifri.interview.cmp.padel.core.ui.input.InputThrottle.DefaultSkipDuration
 import io.bifri.interview.cmp.padel.feature.match.domain.usecase.GetMatchUseCase
+import io.bifri.interview.cmp.padel.feature.match.ui.match.MatchNavigationAction.OpenPlayer
 import io.bifri.interview.cmp.padel.feature.match.ui.match.MatchNavigationAction.ShowError
 import io.bifri.interview.cmp.padel.feature.match.ui.match.MatchPartialState.DataLoaded
 import io.bifri.interview.cmp.padel.feature.match.ui.match.MatchPartialState.DataLoading
@@ -34,6 +37,7 @@ class MatchViewModel(
 ) : BaseViewModel(coroutineDispatcher, exceptionHandler) {
 
     private val refreshes = mutableSharedFlowOfInput<Unit>()
+    private val playerClicks = mutableSharedFlowOfInput<Long>()
     private val state: Flow<MatchState> = _state
     internal val uiState = state.map { it.uiState }
     internal val events = state.mapNotNull { it.event }
@@ -42,9 +46,14 @@ class MatchViewModel(
         refreshes.tryEmit(Unit)
     }
 
+    internal fun onPlayerClick(playerId: Long) {
+        playerClicks.tryEmit(playerId)
+    }
+
     private val _state: Flow<MatchState>
         get() = merge(
             dataStream(),
+            playerClicksStream(),
         )
             .catch {
                 exceptionHandler.handleException(it)
@@ -75,6 +84,10 @@ class MatchViewModel(
                     emit(DataLoadingError(it))
                 }
         }
+
+    private fun playerClicksStream(): Flow<MatchPartialState> = playerClicks
+        .throttleTime(DefaultSkipDuration)
+        .map { Navigate(OpenPlayer(it)) }
 }
 
 internal fun reduceMatchState(
