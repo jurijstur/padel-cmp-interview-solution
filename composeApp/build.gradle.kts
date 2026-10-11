@@ -10,6 +10,7 @@ kotlin {
         commonMain.dependencies {
             implementation(projects.config)
             implementation(projects.core.coroutines)
+            implementation(projects.core.location)
             implementation(projects.core.network)
             implementation(projects.core.ui)
             implementation(projects.feature.match.data)

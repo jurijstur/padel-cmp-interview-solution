@@ -12,6 +12,7 @@ val TournamentUiModule = module {
             coroutineDispatcher = get(IoDispatcher.koinQualifier),
             exceptionHandler = get(),
             getTournamentsUseCase = get(),
+            locationService = get(),
         )
     }
     viewModel { (tournamentId: Long) ->

@@ -9,7 +9,9 @@
     <string name="tournament_matches_button">Matches</string>
     <string name="tournament_poster_cd">%1$s poster</string>
     <string name="tournament_screen_title">Tournament</string>
+    <string name="tournaments_distance_away">%1$d km away</string>
     <string name="tournaments_empty">No tournaments</string>
+    <string name="tournaments_location_unavailable">Location is unavailable, so distances are hidden.</string>
     <string name="tournaments_players_button">Players</string>
     <string name="tournaments_screen_title">Tournaments</string>
 </resources>

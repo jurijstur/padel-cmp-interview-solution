@@ -17,6 +17,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Card
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
@@ -34,6 +35,7 @@ import io.bifri.interview.cmp.padel.core.designsystem.theme.AppTheme
 import io.bifri.interview.cmp.padel.core.designsystem.theme.dimens
 import io.bifri.interview.cmp.padel.core.ui.Event
 import io.bifri.interview.cmp.padel.core.ui.LifecycleCollectEffect
+import io.bifri.interview.cmp.padel.feature.tournament.domain.location.TournamentWithDistance
 import io.bifri.interview.cmp.padel.feature.tournament.domain.model.TournamentsTournament
 import io.bifri.interview.cmp.padel.feature.tournament.ui.TournamentUiRes
 import io.bifri.interview.cmp.padel.feature.tournament.ui.component.TournamentSummary
@@ -42,6 +44,7 @@ import io.bifri.interview.cmp.padel.feature.tournament.ui.tournaments.Tournament
 import io.bifri.interview.cmp.padel.feature.tournament.ui.tournaments.TournamentsNavigationAction.ShowError
 import io.bifri.interview.cmp.padel.feature.tournament.ui.tournaments.TournamentsState.UiState
 import io.bifri.interview.cmp.padel.feature.tournament.ui.tournaments_empty
+import io.bifri.interview.cmp.padel.feature.tournament.ui.tournaments_location_unavailable
 import io.bifri.interview.cmp.padel.feature.tournament.ui.tournaments_players_button
 import io.bifri.interview.cmp.padel.feature.tournament.ui.tournaments_screen_title
 import kotlinx.datetime.LocalDate
@@ -56,6 +59,7 @@ fun TournamentsRoute(
     viewModel: TournamentsViewModel = koinViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle(null)
+    LocationPermissionEffect(onResult = viewModel::onLocationPermission)
 
     TournamentsScreen(
         uiState = uiState,
@@ -117,6 +121,18 @@ private fun TournamentsScreen(
                     label = { Text(stringResource(TournamentUiRes.string.tournaments_players_button)) },
                 )
             }
+            if (uiState.isLocationUnavailable) {
+                Text(
+                    modifier = Modifier.padding(
+                        start = dimens.spacingMedium,
+                        end = dimens.spacingMedium,
+                        top = dimens.spacingSmall,
+                    ),
+                    text = stringResource(TournamentUiRes.string.tournaments_location_unavailable),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
             AppPullToRefreshBox(
                 isRefreshing = uiState.isDataLoading,
                 onRefresh = onRefresh,
@@ -162,7 +178,7 @@ private fun EmptyTournaments(
 
 @Composable
 private fun TournamentsContent(
-    items: List<TournamentsTournament>,
+    items: List<TournamentWithDistance>,
     contentPadding: PaddingValues,
     onTournamentClick: (Long) -> Unit,
     modifier: Modifier = Modifier,
@@ -174,15 +190,16 @@ private fun TournamentsContent(
     ) {
         items(
             items = items,
-            key = { it.id },
-        ) { tournament ->
+            key = { it.tournament.id },
+        ) { item ->
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                onClick = { onTournamentClick(tournament.id) },
+                onClick = { onTournamentClick(item.tournament.id) },
             ) {
                 TournamentSummary(
-                    modifier = modifier.padding(dimens.cardPaddingMedium),
-                    tournament = tournament,
+                    modifier = Modifier.padding(dimens.cardPaddingMedium),
+                    tournament = item.tournament,
+                    distanceKm = item.distanceKm,
                 )
             }
         }
@@ -210,13 +227,19 @@ private fun TournamentsScreenPreview() {
         TournamentsScreen(
             uiState = UiState(
                 items = listOf(
-                    previewTournament(
-                        id = 740L,
-                        name = "London P1 2026",
+                    TournamentWithDistance(
+                        tournament = previewTournament(
+                            id = 740L,
+                            name = "London P1 2026",
+                        ),
+                        distanceKm = PreviewDistanceKm,
                     ),
-                    previewTournament(
-                        id = 827L,
-                        name = "FIP Silver Bali Island Sports",
+                    TournamentWithDistance(
+                        tournament = previewTournament(
+                            id = 827L,
+                            name = "FIP Silver Bali Island Sports",
+                        ),
+                        distanceKm = null,
                     ),
                 ),
                 isDataLoading = false,
@@ -257,6 +280,31 @@ private fun TournamentsScreenEmptyPreview() {
     }
 }
 
+@Preview(name = "Location unavailable")
+@Composable
+private fun TournamentsScreenLocationUnavailablePreview() {
+    AppTheme {
+        TournamentsScreen(
+            uiState = UiState(
+                items = listOf(
+                    TournamentWithDistance(
+                        tournament = previewTournament(
+                            id = 740L,
+                            name = "London P1 2026",
+                        ),
+                        distanceKm = null,
+                    ),
+                ),
+                isDataLoading = false,
+                isLocationUnavailable = true,
+            ),
+            onTournamentClick = {},
+            onPlayersClick = {},
+            onRefresh = {},
+        )
+    }
+}
+
 @Suppress("MagicNumber")
 private fun previewTournament(id: Long, name: String) = TournamentsTournament(
     id = id,
@@ -268,3 +316,5 @@ private fun previewTournament(id: Long, name: String) = TournamentsTournament(
     startDate = LocalDate(2026, 8, 3),
     endDate = LocalDate(2026, 8, 9),
 )
+
+private const val PreviewDistanceKm = 12

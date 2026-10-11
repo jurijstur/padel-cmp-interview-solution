@@ -7,7 +7,14 @@ plugins {
 kotlin {
     sourceSets {
         commonMain.dependencies {
+            implementation(projects.core.location)
             implementation(projects.feature.tournament.domain)
+        }
+        androidMain.dependencies {
+            implementation(libs.androidx.activity.compose)
+        }
+        commonTest.dependencies {
+            implementation(libs.kotlinx.coroutines.test)
         }
     }
 }

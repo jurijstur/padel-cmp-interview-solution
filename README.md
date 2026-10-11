@@ -130,6 +130,18 @@ Checked with `compileDebugKotlinAndroid`, `test`, `ktlintCheck`, `detekt`, and `
 
 See `docs/screenshots/task4-player-detail.png` and `docs/screenshots/task4-player-from-match.png`.
 
+### Task 5: Tournaments by distance
+
+The tournaments list sorts itself by distance from the device. A new location updates the order on its own. Distances come from a fixed table of city centers for the tournament cities, so the screen does not call a geocoder. A city that is missing from the table stays on the list without a distance, after every city that has one.
+
+The screen asks for location permission once. Granting it later in system settings is picked up when the tournaments screen is visible again, without asking a second time after a denial. Android reads location with LocationManager and iOS with CLLocationManager. Updates are at least 60 seconds apart. A fix that arrives inside that window is kept and applied when the window ends, and a repeated position does not start the window again. The list is shown as soon as the tournaments load, including before the first fix. That location flow is combined with the tournament flow, so a refresh and a location change both re-sort the loaded list. Pull-to-refresh still only reloads tournaments.
+
+If location is denied or unavailable, the list stays in its original order, distances are hidden, and a short note explains why. The list can still be opened and refreshed.
+
+Checked with `compileDebugKotlinAndroid`, `test`, `ktlintCheck`, `detekt`, and `lint`. Unit tests cover nearest-first sorting, a missing device location, the list staying visible before the first fix, and the 60-second window. iOS was not compiled on this machine.
+
+See `docs/screenshots/task5-tournaments-by-distance.png` and `docs/screenshots/task5-location-unavailable.png`.
+
 ## Development Guidance
 
 See [AGENTS.md](AGENTS.md) for module structure, architecture, coding conventions, verification commands, and testing guidance. [CLAUDE.md](CLAUDE.md) is the entry point for Claude Code and references those shared instructions.

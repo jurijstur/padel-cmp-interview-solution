@@ -8,11 +8,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import io.bifri.interview.cmp.padel.core.designsystem.theme.dimens
 import io.bifri.interview.cmp.padel.feature.tournament.domain.model.TournamentsTournament
+import io.bifri.interview.cmp.padel.feature.tournament.ui.TournamentUiRes
+import io.bifri.interview.cmp.padel.feature.tournament.ui.tournaments_distance_away
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 internal fun TournamentSummary(
     tournament: TournamentsTournament,
     modifier: Modifier = Modifier,
+    distanceKm: Int? = null,
 ) {
     Column(
         modifier = modifier,
@@ -30,7 +34,10 @@ internal fun TournamentSummary(
             style = MaterialTheme.typography.labelLarge,
             color = MaterialTheme.colorScheme.primary,
         )
-        Text(text = tournament.formatLocation())
+        val locationLine = tournament.locationLine(distanceKm)
+        if (locationLine.isNotBlank()) {
+            Text(text = locationLine)
+        }
         Text(
             text = tournament.formatDateRange(),
             style = MaterialTheme.typography.bodyMedium,
@@ -42,7 +49,13 @@ private fun TournamentsTournament.formatLevelAndStatus() = listOfNotNull(level, 
     .filter { it.isNotBlank() }
     .joinToString(" • ") { it.replace('_', ' ').uppercase() }
 
-private fun TournamentsTournament.formatLocation() =
-    listOfNotNull(location, country).filter { it.isNotBlank() }.joinToString(", ")
+@Composable
+private fun TournamentsTournament.locationLine(distanceKm: Int?): String {
+    val place = listOfNotNull(location, country).filter { it.isNotBlank() }.joinToString(", ")
+    val distance = distanceKm?.let { kilometers ->
+        stringResource(TournamentUiRes.string.tournaments_distance_away, kilometers)
+    }
+    return listOf(place, distance.orEmpty()).filter { it.isNotBlank() }.joinToString(" • ")
+}
 
 private fun TournamentsTournament.formatDateRange() = listOfNotNull(startDate, endDate).joinToString(" – ")
